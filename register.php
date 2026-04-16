@@ -1,28 +1,46 @@
-<?php include ('header.php'); ?>
+<?php
+include 'config/db.php';
+include 'includes/functions.php';
+
+$msg = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = sanitize($_POST['name']);
+    $email = sanitize($_POST['email']);
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+    $stmt = $conn->prepare("INSERT INTO users (name,email,password) VALUES (?,?,?)");
+    $stmt->bind_param("sss", $name, $email, $password);
+
+    if ($stmt->execute()) {
+        $msg = "Registration successful! <a href='login.php'>Login</a>";
+    } else {
+        $msg = "Email already exists!";
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Register</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
 
 <div class="container">
-    <div class="row-xl-6 mt-5">
-        <h1>Register Now</h1><br>
-    </div>
-    <div class="row-xl-6">
-        <form method="post" action="register_submit.php">
-            <div class="form-group">
-                <label for="exampleInputEmail1">Full Name</label>
-                <input type="text" name="name" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" required>
-            </div>
-            <div class="form-group">
-                <label for="exampleInputEmail1">Email address</label>
-                <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email" required>
-            </div>
-            <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <input type="password" name="password" class="form-control" id="exampleInputPassword1" placeholder="Password" required>
-            </div>
-            <input type="hidden" name="time" value="<?php echo date('Y-m-d H:i:s'); ?>" readonly="readonly">
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
+<h2>Register</h2>
+<p><?= $msg ?></p>
+
+<form method="post">
+<input name="name" placeholder="Name" required>
+<input name="email" type="email" placeholder="Email" required>
+<input name="password" type="password" placeholder="Password" required>
+<button type="submit">Register</button>
+</form>
+
+<p>Already have account? <a href="login.php">Login</a></p>
 </div>
 
-<?php include ('footer.php'); ?>
-
+</body>
+</html>
